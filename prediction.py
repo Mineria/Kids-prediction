@@ -1,10 +1,11 @@
 # --*-- coding: utf8 --*--
+from sklearn import svm
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import cross_validation
 import pandas as pd
 import numpy as np
 
-filename = "data/allData.csv"
+filename = "data/train.csv"
 algorithm_name = "random_forest"
 
 def read_training(filename):
@@ -53,11 +54,13 @@ def prepare_data(dataframe):
         elif operand >= 90:
             return 10
 
-    # def normalize_time(time):
-    #     return time
+    def normalize_time(time):
+        if time <= 20:
+            return 1
+        if time > 20:
+            return 0
 
-    # df['time'] = df['time'].map( lambda x: normalize_time(x) ).astype(int)
-    df['time'] = df['time'].astype(int)
+    df['time'] = df['time'].map( lambda x: normalize_time(x) ).astype(int)
     df['op1'] = df['op1'].map( lambda x: normalize_operands(x) ).astype(int)
     df['op2'] = df['op2'].map( lambda x: normalize_operands(x) ).astype(int)
     df['operator'] = df['operator'].map( lambda x: normalize_operator(x) ).astype(int)
@@ -65,42 +68,88 @@ def prepare_data(dataframe):
     df = df.drop(deleted_labels, axis=1)
 
     return df.values
-
-def load_classificator(algorithm_name):
-    if algorithm_name == "random_forest":
-        print 'Applying Random Forest!'
-        clf = RandomForestClassifier(n_estimators = 100)
-    else:
-        clf = RandomForestClassifier(n_estimators = 100)
-
-    return clf
-
-def train(clf, data_matrix):
-    """
-    Given a sklearn classifier.
-    Returns the trained matrix
-    """
-    clf = clf.fit(data_matrix[0::, 0:2], data_matrix[0::, 3])
-    return clf
-
-def prediction(model, clf, test_matrix, cv_iterations=5):
-    data = test_matrix[0::, 0:2]
-    target = test_matrix[0::, 3]
-    scores = cross_validation.cross_val_score(clf, data, target, cv=cv_iterations)
-    return scores
+#
+# def load_classificator(algorithm_name):
+#     if algorithm_name == "random_forest":
+#         print 'Applying Random Forest!'
+#         clf = RandomForestClassifier(n_estimators=100)
+#     else:
+#         clf = RandomForestClassifier(n_estimators=100)
+#
+#     return clf
+#
+# def train(clf, data_matrix):
+#     """
+#     Given a sklearn classifier.
+#     Returns the trained matrix
+#     """
+#     clf = clf.fit(data_matrix[0::, 0:2], data_matrix[0::, 3])
+#     return clf
+#
+# def prediction(model, clf, train_data, test_data, cv_iterations=5):
+#     data = test_data[0::, ::2]
+#     target = test_data[0::, 3]
+#
+#     predition = clf.predict(test_data[0::,0:2]).astype(int)
+#
+#     #score = forest.score(predition[0::,1::], test_data[0::,1::])
+#     score = clf.score(test_data[0::,0:2], predition)
+#     score = clf.score(train_data[0::,0:2], train_data[0::,0:3])
+#
+#     print "Score"
+#     print score
+#
+#
+#     print test_data
+#     print target
+#     print data
+#     # clf = svm.SVC(kernel='linear', C=1)
+#     scores = cross_validation.cross_val_score(clf, data, target, cv=cv_iterations)
+#     return scores
 
 def main(algorithm_name):
 
+    cv_iterations = 5
+
     dataframe = read_training(filename)
-    data_matrix = prepare_data(dataframe)
-    test_matrix = data_matrix
+    train_data = prepare_data(dataframe)
 
-    clf = load_classificator(algorithm_name)
-    model = train(clf, data_matrix)
+    clf = RandomForestClassifier(n_estimators=100)
 
-    scores = prediction(model, clf, test_matrix)
-    percentage = scores.mean() * 100
 
-    print "Success %f" % percentage
+    data = train_data[0::, ::2]
+    target = train_data[0::, 3]
+
+    cross_validation_scores = cross_validation.cross_val_score(
+        clf, data, target, cv=10)
+
+    print cross_validation_scores
+    print "cross_validation_scores %f" % (cross_validation_scores.mean() * 100)
+
+
+
+
+    print "*" * 30
+
+
+
+
+    X_train, X_test, y_train, y_test = cross_validation.train_test_split(
+        data, target, test_size=0.18, random_state=1)
+
+    clf = clf.fit(X_train, y_train)
+    print clf.score(X_test, y_test)
+
+
+
+
+    # clf = load_classificator(algorithm_name)
+    # model = train(clf, train_data)
+    #
+    # scores = prediction(model, clf, train_data, test_data, cv_iterations)
+    # # percentage = scores.mean() * 100
+    #
+    # print "Success %f" % scores
+    # # print "Success %f" % percentage
 
 main(algorithm_name)
