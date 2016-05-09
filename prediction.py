@@ -68,16 +68,39 @@ def prepare_data(dataframe):
     df = df.drop(deleted_labels, axis=1)
 
     return df.values
-#
-# def load_classificator(algorithm_name):
-#     if algorithm_name == "random_forest":
-#         print 'Applying Random Forest!'
-#         clf = RandomForestClassifier(n_estimators=100)
-#     else:
-#         clf = RandomForestClassifier(n_estimators=100)
-#
-#     return clf
-#
+
+def load_classificator(algorithm_name):
+    if algorithm_name == "random_forest":
+        print 'Applying Random Forest!'
+        clf = RandomForestClassifier(n_estimators=100)
+    else:
+        clf = RandomForestClassifier(n_estimators=100)
+
+    return clf
+
+def prediction_cross_validation(clf, train_data):
+    data = train_data[0::, ::2]
+    target = train_data[0::, 3]
+
+    cross_validation_scores = cross_validation.cross_val_score(
+        clf, data, target, cv=10)
+
+    score = cross_validation_scores.mean()
+    return score
+
+def prediction_normal(clf, train_data):
+    data = train_data[0::, ::2]
+    target = train_data[0::, 3]
+
+    X_train, X_test, y_train, y_test = cross_validation.train_test_split(
+        data, target, test_size=0.18, random_state=1)
+
+    clf = clf.fit(X_train, y_train)
+
+    score = clf.score(X_test, y_test)
+    return score
+
+
 # def train(clf, data_matrix):
 #     """
 #     Given a sklearn classifier.
@@ -85,7 +108,7 @@ def prepare_data(dataframe):
 #     """
 #     clf = clf.fit(data_matrix[0::, 0:2], data_matrix[0::, 3])
 #     return clf
-#
+
 # def prediction(model, clf, train_data, test_data, cv_iterations=5):
 #     data = test_data[0::, ::2]
 #     target = test_data[0::, 3]
@@ -107,39 +130,20 @@ def prepare_data(dataframe):
 #     scores = cross_validation.cross_val_score(clf, data, target, cv=cv_iterations)
 #     return scores
 
-def main(algorithm_name):
-
+def main(algorithm_name, filename):
     cv_iterations = 5
 
     dataframe = read_training(filename)
     train_data = prepare_data(dataframe)
+    clf = load_classificator(algorithm_name)
 
-    clf = RandomForestClassifier(n_estimators=100)
-
-
-    data = train_data[0::, ::2]
-    target = train_data[0::, 3]
-
-    cross_validation_scores = cross_validation.cross_val_score(
-        clf, data, target, cv=10)
-
-    print cross_validation_scores
-    print "cross_validation_scores %f" % (cross_validation_scores.mean() * 100)
-
-
-
+    score = prediction_cross_validation(clf, train_data)
+    print "cross_validation_scores %f" % (score * 100)
 
     print "*" * 30
 
-
-
-
-    X_train, X_test, y_train, y_test = cross_validation.train_test_split(
-        data, target, test_size=0.18, random_state=1)
-
-    clf = clf.fit(X_train, y_train)
-    print clf.score(X_test, y_test)
-
+    score = prediction_normal(clf, train_data)
+    print "normal validation is %f" % (score * 100)
 
 
 
@@ -152,4 +156,4 @@ def main(algorithm_name):
     # print "Success %f" % scores
     # # print "Success %f" % percentage
 
-main(algorithm_name)
+main(algorithm_name, filename)
