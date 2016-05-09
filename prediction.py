@@ -1,11 +1,13 @@
 # --*-- coding: utf8 --*--
 from sklearn import svm
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LinearRegression
 from sklearn import cross_validation
 import pandas as pd
 import numpy as np
 
 filename = "data/train.csv"
+algorithm_name = "linear_regression"
 algorithm_name = "random_forest"
 
 def read_training(filename):
@@ -55,10 +57,24 @@ def prepare_data(dataframe):
             return 10
 
     def normalize_time(time):
-        if time <= 20:
+        if time < 20:
             return 1
-        if time > 20:
+        else:
             return 0
+        # elif time < 5:
+        #     return 2
+        # elif time < 11:
+        #     return 3
+        # elif time < 18:
+        #     return 4
+        # elif time < 24:
+        #     return 5
+        # elif time < 30:
+        #     return 6
+        # elif time >= 50:
+        #     return 6
+        # else:
+        #     return 0
 
     df['time'] = df['time'].map( lambda x: normalize_time(x) ).astype(int)
     df['op1'] = df['op1'].map( lambda x: normalize_operands(x) ).astype(int)
@@ -70,9 +86,13 @@ def prepare_data(dataframe):
     return df.values
 
 def load_classificator(algorithm_name):
+
     if algorithm_name == "random_forest":
         print 'Applying Random Forest!'
         clf = RandomForestClassifier(n_estimators=100)
+    elif algorithm_name == "linear_regression":
+        print 'Applying Linear Regression!'
+        clf = LinearRegression(fit_intercept=True, normalize=False, copy_X=True, n_jobs=1)
     else:
         clf = RandomForestClassifier(n_estimators=100)
 
