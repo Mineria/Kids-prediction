@@ -1,13 +1,17 @@
+# --*-- coding: utf8 --*--
+from sklearn.ensemble import RandomForestClassifier
+from sklearn import cross_validation
 import pandas as pd
 import numpy as np
 
 filename = "data/allData.csv"
+algorithm_name = "random_forest"
 
 def read_training(filename):
     df = pd.read_csv(filename, header=0)
     return df
 
-def prepare(dataframe):
+def prepare_data(dataframe):
     """
     Given a panda's dataframe. Normalize it.
     Returns a numpy matrix
@@ -49,21 +53,54 @@ def prepare(dataframe):
         elif operand >= 90:
             return 10
 
-    df['time'] = df['time'].astype(float)
-    df['operator'] = df['operator'].map( lambda x: normalize_operator(x) ).astype(int)
+    # def normalize_time(time):
+    #     return time
+
+    # df['time'] = df['time'].map( lambda x: normalize_time(x) ).astype(int)
+    df['time'] = df['time'].astype(int)
     df['op1'] = df['op1'].map( lambda x: normalize_operands(x) ).astype(int)
     df['op2'] = df['op2'].map( lambda x: normalize_operands(x) ).astype(int)
+    df['operator'] = df['operator'].map( lambda x: normalize_operator(x) ).astype(int)
 
     df = df.drop(deleted_labels, axis=1)
 
     return df.values
 
-def train(clf):
+def load_classificator(algorithm_name):
+    if algorithm_name == "random_forest":
+        print 'Applying Random Forest!'
+        clf = RandomForestClassifier(n_estimators = 100)
+    else:
+        clf = RandomForestClassifier(n_estimators = 100)
+
+    return clf
+
+def train(clf, data_matrix):
     """
     Given a sklearn classifier.
     Returns the trained matrix
     """
-    pass
+    clf = clf.fit(data_matrix[0::, 0:2], data_matrix[0::, 3])
+    return clf
 
-dataframe = read_training(filename)
-data_matrix = prepare(dataframe)
+def prediction(model, clf, test_matrix, cv_iterations=5):
+    data = test_matrix[0::, 0:2]
+    target = test_matrix[0::, 3]
+    scores = cross_validation.cross_val_score(clf, data, target, cv=cv_iterations)
+    return scores
+
+def main(algorithm_name):
+
+    dataframe = read_training(filename)
+    data_matrix = prepare_data(dataframe)
+    test_matrix = data_matrix
+
+    clf = load_classificator(algorithm_name)
+    model = train(clf, data_matrix)
+
+    scores = prediction(model, clf, test_matrix)
+    percentage = scores.mean() * 100
+
+    print "Success %f" % percentage
+
+main(algorithm_name)
