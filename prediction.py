@@ -4,7 +4,7 @@ import numpy as np
 filename = "data/allData.csv"
 
 def read_training(filename):
-    df = pd.read_csv(filename, header=None)
+    df = pd.read_csv(filename, header=0)
     return df
 
 def prepare(dataframe):
@@ -13,15 +13,48 @@ def prepare(dataframe):
     Returns a numpy matrix
     """
     df = dataframe
+    deleted_labels = ['name']
 
-    def race(x):
-        if (x == "black"):
+    def normalize_operator(operator):
+        if operator == "*":
+            return 4
+        elif operator == "/":
+            return 3
+        elif operator == "+":
+            return 2
+        elif operator == "-":
             return 1
         else:
             return 0
 
-    df['sex'] = df['sex'].map({ 'Female': 0, 'Male': 1 }).astype(int)
-    df['race'] = df['race'].map( lambda x: race(x) ).astype(int)
+    def normalize_operands(operand):
+        if operand <= 10:
+            return 1
+        elif operand >= 10 and operand < 20:
+            return 2
+        elif operand >= 20 and operand < 30:
+            return 3
+        elif operand >= 30 and operand < 40:
+            return 4
+        elif operand >= 40 and operand < 50:
+            return 5
+        elif operand >= 50 and operand < 60:
+            return 6
+        elif operand >= 60 and operand < 70:
+            return 7
+        elif operand >= 70 and operand < 80:
+            return 8
+        elif operand >= 80 and operand < 90:
+            return 9
+        elif operand >= 90:
+            return 10
+
+    df['time'] = df['time'].astype(float)
+    df['operator'] = df['operator'].map( lambda x: normalize_operator(x) ).astype(int)
+    df['op1'] = df['op1'].map( lambda x: normalize_operands(x) ).astype(int)
+    df['op2'] = df['op2'].map( lambda x: normalize_operands(x) ).astype(int)
+
+    df = df.drop(deleted_labels, axis=1)
 
     return df.values
 
