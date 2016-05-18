@@ -23,13 +23,13 @@ def prepare_data(dataframe):
     deleted_labels = ['name']
 
     def normalize_operator(operator):
-        if operator == "*":
-            return 4
-        elif operator == "/":
-            return 3
-        elif operator == "+":
-            return 2
+        if operator == "/":
+            return 8 # even more complexity
+        elif operator == "*":
+            return 7 # more complexity
         elif operator == "-":
+            return 2
+        elif operator == "+":
             return 1
         else:
             return 0
@@ -56,30 +56,32 @@ def prepare_data(dataframe):
         elif operand >= 90:
             return 10
 
+    def sum_complexity(row):
+        operands = []
+        operands.append(row['op1'])
+        operands.append(row['op2'])
+        operands.append(row['operator'])
+        return sum(operands)
+
     def normalize_time(time):
         if time < 20:
             return 1
         else:
             return 0
-        # elif time < 5:
-        #     return 2
-        # elif time < 11:
-        #     return 3
-        # elif time < 18:
-        #     return 4
-        # elif time < 24:
-        #     return 5
-        # elif time < 30:
-        #     return 6
-        # elif time >= 50:
-        #     return 6
-        # else:
-        #     return 0
 
     df['time'] = df['time'].map( lambda x: normalize_time(x) ).astype(int)
     df['op1'] = df['op1'].map( lambda x: normalize_operands(x) ).astype(int)
     df['op2'] = df['op2'].map( lambda x: normalize_operands(x) ).astype(int)
     df['operator'] = df['operator'].map( lambda x: normalize_operator(x) ).astype(int)
+    df['complexity'] = df.apply(sum_complexity, axis=1)
+
+
+    grouped = df.groupby(['operator'])
+    print grouped.groups
+    print "---" * 30
+    print grouped.agg([np.sum, np.mean, np.std])
+    print "---" * 30
+    # print df['complexity']
 
     df = df.drop(deleted_labels, axis=1)
 
@@ -156,6 +158,8 @@ def main(algorithm_name, filename):
     dataframe = read_training(filename)
     train_data = prepare_data(dataframe)
     clf = load_classificator(algorithm_name)
+
+    print train_data['complexity']
 
     score = prediction_cross_validation(clf, train_data)
     print "cross_validation_scores %f" % (score * 100)

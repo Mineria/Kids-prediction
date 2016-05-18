@@ -1,0 +1,3 @@
+"""
+Anticheating algorithm
+"""

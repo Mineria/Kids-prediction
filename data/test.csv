@@ -1,0 +1,5 @@
+name,op1,operator,op2,time
+IgnacioF,36,+,50,0
+IgnacioF,36,-,50,1
+IgnacioF,36,*,50,2
+IgnacioF,36,/,50,3
