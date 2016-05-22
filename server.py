@@ -3,22 +3,31 @@ from flask import Flask
 app = Flask(__name__)
 
 from sklearn.externals import joblib
+from normalization import normalize_operands, server_operation_conversion
 
-filename_model = 'filename.pkl'
-regr = joblib.load(filename_model)
+clf = joblib.load('model/filename.pkl')
 
 @app.route("/")
 def hello():
-    return "Hello World!"
+    return "Go to /predict"
 
-@app.route("/generate_model")
-def generate_model():
-    joblib.dump(clf, filename_model)
+@app.route("/predict/<int:op1>/<int:operator_number>/<int:op2>/<float:time>")
+def predict(op1, operator_number, op2, time):
 
-@app.route("/predict/<float:op1>/<float:op2>/<path:operator>")
-def predict(op1, op2, operator):
+    op1 = normalize_operands(op1)
+    op2 = normalize_operands(op2)
+    operator = server_operation_conversion(operator_number)
+    complexity = op1 + op2 + operator
+
+    data_to_predict = [op1, operator, op2, complexity]
+
+    print data_to_predict
+
+    return str(clf.predict(data_to_predict))
+
+
   # Aquí va la magia de Machile Learning
-  return float(regr.predict([v])[0])
+  # return float(regr.predict([v])[0])
 
 if __name__ == "__main__":
     app.run()
