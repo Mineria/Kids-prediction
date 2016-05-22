@@ -1,5 +1,9 @@
 
 # Kids-Prediction
+
+Operations schema:
+- op1 | operator | op2 | complexity | time
+
 ## Análisis DataSet
 
 
