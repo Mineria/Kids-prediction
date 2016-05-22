@@ -4,7 +4,7 @@
 
 Esto es un texto.
 
-![alt text](image/imagen.png)
+![alt text](images/image.png)
 
 | Operations        | Are           | Cool  |
 | ------------- |:-------------:| -----:|
