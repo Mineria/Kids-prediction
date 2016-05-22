@@ -8,7 +8,7 @@ Utilizamos una base de datos Mysql unicamente para hacer un análisis más rapid
 ### Query donde encontramos un error de un valor negativo
 select operator, count(*) as cantidadOperaciones, sum(time) as tiempoTotal from Kids
 where time < 0;
-![alt text](images/image.png)
+![alt text](images/error1.png)
 
 
 ### Query donde encontramos el promedio por cada operando
@@ -16,6 +16,9 @@ select operator, tiempoTotal/cantidadOperaciones as Promedio, cantidadOperacione
 (select operator, count(*) as cantidadOperaciones, sum(time) as tiempoTotal from Kids
 where time > 0
 group by operator)t1;
+
+![alt text](images/promedios.png)
+
 
 | Operador        | Promedio de la operación           | Cantidad de Operaciones por Operando  |
 | ------------- |:-------------:| -----:|
