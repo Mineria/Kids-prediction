@@ -13,7 +13,8 @@ def normalize_operator(operator):
         return 0
 
 def normalize_time(time):
-    if time < 20:
+    return time % 10
+    if tim < 5:
         return 1
     else:
         return 0
