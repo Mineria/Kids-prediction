@@ -82,8 +82,8 @@ def main():
     print target
 
     # X = [4, 3, 6]
-    # temp = np.array(temp).reshape(-1, len(temp))
-    #print clf.predict(temp)
+    # temp = np.array(temp).reshape(-1, len(temp))
+    # print clf.predict(temp)
 
     print predict_model(clf, [4, 3, 6])
     print predict_model(clf, [10, 3, 4])
