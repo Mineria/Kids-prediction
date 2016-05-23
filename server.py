@@ -3,10 +3,15 @@ from flask import Flask
 app = Flask(__name__)
 
 from sklearn.externals import joblib
-from normalization import normalize_operands, server_operation_conversion
+from normalization import normalize_operands, operator_number_to_string
 import numpy as np
 
-clf = joblib.load('model/filename.pkl')
+operator_model = {
+    "+": 'model/sum/model.pkl',
+    "-": 'model/sub/model.pkl',
+    "*": 'model/div/model.pkl',
+    "/": 'model/mul/model.pkl'
+}
 
 @app.route("/")
 def hello():
@@ -15,12 +20,19 @@ def hello():
 @app.route("/predict/<int:op1>/<int:operator_number>/<int:op2>/<float:time>")
 def predict(op1, operator_number, op2, time):
 
+    # operator number
+    # 1= sum | 2= Resta
+    # 3= Multiplication | 4 = Division
+
     op1 = normalize_operands(op1)
     op2 = normalize_operands(op2)
-    operator = server_operation_conversion(operator_number)
-    complexity = op1 + op2 + operator
+    operator = operator_number_to_string(operator_number)
 
-    data_input = [op1, operator, op2, complexity]
+    filename_model = operator_model[operator]
+    print filename_model
+    clf = joblib.load(filename_model)
+
+    data_input = [op1, operator, op2]
     data_input = np.array(data_input).reshape(-1, len(data_input))
 
     return str(clf.predict(data_input)[0])
