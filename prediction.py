@@ -7,6 +7,7 @@ import numpy as np
 
 # Machine Learning
 from sklearn.ensemble import RandomForestClassifier
+from sklearn import linear_model
 from sklearn import cross_validation
 
 # Export the model
@@ -53,6 +54,7 @@ def load_data(filename, operation):
 def load_classifier():
     # You can put different classifier per operator
     clf = RandomForestClassifier(n_estimators=100)
+    #clf = linear_model.Lasso(alpha = 0.1)
     return clf
 
 def fit_classifier(clf, data, target):
@@ -60,8 +62,13 @@ def fit_classifier(clf, data, target):
     clf.fit(data, target)
     return clf
 
-def export_model(clf):
+def export_model(clf, model_filename):
     joblib.dump(clf, model_filename)
+
+def predict_model(clf, X):
+    print "\t" + str(X)
+    temp = np.array(X).reshape(-1, len(X))
+    return clf.predict(temp)
 
 def main():
     train_data = load_data(filename, operation="sum")
@@ -74,10 +81,17 @@ def main():
     print data
     print target
 
-    temp = [4, 3, 6]
-    temp = np.array(temp).reshape(-1, len(temp))
-    print clf.predict(temp)
+    # X = [4, 3, 6]
+    # temp = np.array(temp).reshape(-1, len(temp))
+    #print clf.predict(temp)
 
-    export_model(clf)
+    print predict_model(clf, [4, 3, 6])
+    print predict_model(clf, [10, 3, 4])
+    print predict_model(clf, [1, 2, 4])
+    print predict_model(clf, [0, 0, 0])
+    print predict_model(clf, [150, 150, 150])
+    print predict_model(clf, [10, 4, 6])
+
+    export_model(clf, model_filename)
 
 main()
