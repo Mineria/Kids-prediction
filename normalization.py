@@ -1,30 +1,26 @@
 # --*-- coding:utf-8 --*--
 
-def normalize_operator(operator):
-    if operator == "/":
-        return 8 #  even more complexity
-    elif operator == "*":
-        return 7 #  more complexity
-    elif operator == "-":
+def normal_time(time):
+    if time < 10:
         return 2
-    elif operator == "+":
+    if time < 20:
         return 1
     else:
         return 0
 
-def server_operation_conversion(operator):
-    if operator == 3:
-        return 8  #Division |  even more complexity
-    elif operator == 2:
-        return 7  #Multiplication | more complexity
-    elif operator == 1:
-        return 2  #Resta
-    elif operator == 0:
-        return 1  #Sum
+def normal_operator(operator):
+    if operator == "+":
+        return 1
+    elif operator == "-":
+        return 2
+    elif operator == "/":
+        return 3
+    elif operator == "*":
+        return 4
     else:
-        return 0
+        return 4
 
-def normalize_operands(operand):
+def normal_operands(operand):
     if operand <= 10:
         return 1
     elif operand >= 10 and operand < 20:
