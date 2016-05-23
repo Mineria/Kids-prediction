@@ -23,7 +23,8 @@ def predict(op1, operator_number, op2, time):
     data_input = [op1, operator, op2, complexity]
     data_input = np.array(data_input).reshape(-1, len(data_input))
 
-    return str(clf.predict(data_input)[0])
+    prediction = clf.predict(data_input)[0]
+    return str(prediction)
 
 if __name__ == "__main__":
     app.run()

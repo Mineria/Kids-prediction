@@ -1,5 +1,6 @@
 # --*-- coding: utf8 --*--
-from sklearn import svm
+
+from sklearn import linear_model
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import cross_validation
 import pandas as pd
@@ -48,7 +49,8 @@ def prepare_data(dataframe):
 def load_classifier(algorithm_name, data, target):
 
     print 'Applying Random Forest!'
-    clf = RandomForestClassifier(n_estimators=100)
+    # clf = RandomForestClassifier(n_estimators=100)
+    clf = linear_model.LinearRegression()
     clf.fit(data, target)
 
     # if algorithm_name == "random_forest":
@@ -103,10 +105,11 @@ def main(algorithm_name, filename):
 
     print "Preciting a value"
 
-    temp = [1, 8, 3, 12]
     temp = [8, 8, 8, 24]
-    temp = [4, 3, 6, 13]
     temp = [0, 0, 0, 0]
+    temp = [1, 8, 3, 12]
+    temp = [4, 3, 6, 13]
+    temp = [10, 3, 4, 17]
     # temp = np.array(temp).reshape((len(temp), 3))
     temp = np.array(temp).reshape(-1, 4)
     # http://stackoverflow.com/questions/12575421/convert-a-1d-array-to-a-2d-array-in-numpy
