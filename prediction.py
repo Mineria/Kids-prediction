@@ -1,121 +1,83 @@
 # --*-- coding: utf8 --*--
-from sklearn import svm
-from sklearn.ensemble import RandomForestClassifier
-from sklearn import cross_validation
+# Matrix
+from normalization import normalize_operator, normalize_time, normalize_operands
+from pandas import DataFrame
 import pandas as pd
 import numpy as np
 
-from normalization import normalize_operands, normalize_operator, normalize_time
+# Machine Learning
+from sklearn.ensemble import RandomForestClassifier
+from sklearn import cross_validation
 
 # Export the model
 from sklearn.externals import joblib
 
 filename = "data/train.csv"
-algorithm_name = "linear_regression"
-algorithm_name = "random_forest"
+model_filename = "model/filename.pkl"
 
-def read_training(filename):
+operator = {
+    "+": {
+        "name": "sum",
+        "filename": "model/sum/model.pkl"
+    },
+    "-": {
+        "name": "substraction",
+        "filename": "model/sub/model.pkl"
+    },
+    "/": {
+        "name": "division",
+        "filename": "model/sub/division.pkl"
+    },
+    "*": {
+        "name": "multiplication",
+        "filename": "model/sub/multiplication.pkl"
+    }
+}
+
+def load_data(filename, operation):
     df = pd.read_csv(filename, header=0)
-    return df
+    labels_to_delete = ['name']
 
-def prepare_data(dataframe):
-    """
-    Given a panda's dataframe. Normalize it.
-    Returns a numpy matrix
-    """
-    df = dataframe
-    deleted_labels = ['name']
+    df['op1'] = df['op1'].map(lambda x: normalize_operands(x)).astype(int)
+    df['op2'] = df['op2'].map(lambda x: normalize_operands(x)).astype(int)
+    df['operator'] = df['operator'].map(lambda x: normalize_operator(x)).astype(int)
+    df['time'] = df['time'].map(lambda x: normalize_time(x)).astype(int)
 
-    def sum_complexity(row):
-        operands = []
-        operands.append(row['op1'])
-        operands.append(row['op2'])
-        operands.append(row['operator'])
-        return sum(operands)
+    # df = df.query('operator==1')
 
-    df['time'] = df['time'].map( lambda x: normalize_time(x) ).astype(int)
-    df['op1'] = df['op1'].map( lambda x: normalize_operands(x) ).astype(int)
-    df['op2'] = df['op2'].map( lambda x: normalize_operands(x) ).astype(int)
-    df['operator'] = df['operator'].map( lambda x: normalize_operator(x) ).astype(int)
 
-    complexity = df.apply(sum_complexity, axis=1).astype(int)
-    df.insert(4, 'complexity', complexity) # Insert column into index 3
-
-    df = df.drop(deleted_labels, axis=1)
+    df = df.drop(labels_to_delete, axis=1)
 
     return df.values
 
-def load_classifier(algorithm_name, data, target):
-
-    print 'Applying Random Forest!'
+def load_classifier():
+    # You can put different classifier per operator
     clf = RandomForestClassifier(n_estimators=100)
-    clf.fit(data, target)
-
-    # if algorithm_name == "random_forest":
-    #     print 'Applying Random Forest!'
-    #     clf = RandomForestClassifier(n_estimators=100)
-    #
-    # else:
-    #     clf = RandomForestClassifier(n_estimators=100)
-
-
     return clf
 
-def prediction_cross_validation(clf, data, target):
+def fit_classifier(clf, data, target):
+    print "Fiting classifier..."
+    clf.fit(data, target)
+    return clf
 
-    cross_validation_scores = cross_validation.cross_val_score(
-        clf, data, target, cv=10)
+def export_model(clf):
+    joblib.dump(clf, model_filename)
 
-    score = cross_validation_scores.mean()
-    return score
+def main():
+    train_data = load_data(filename, operation="sum")
+    data = train_data[0::, 0:3]
+    target = train_data[0::, 3]
 
-def prediction_normal(clf, data, target):
-
-    X_train, X_test, y_train, y_test = cross_validation.train_test_split(
-        data, target, test_size=0.18, random_state=1)
-
-    clf = clf.fit(X_train, y_train)
-    score = clf.score(X_test, y_test)
-    return score
-
-def main(algorithm_name, filename):
-
-    dataframe = read_training(filename)
-    train_data = prepare_data(dataframe)
-    data = train_data[0::, 0:4]
-    target = train_data[0::, 4]
-
-    clf = load_classifier(algorithm_name, data, target)
-
-    cross_score = prediction_cross_validation(clf, data, target)
-    normal_score = prediction_normal(clf, data, target)
-
-    print "cross_validation_scores %f" % (cross_score * 100)
-    print "normal validation is %f" % (normal_score * 100)
-
-    print
-    print"*" * 30
-    print
-
+    clf = load_classifier()
+    clf = fit_classifier(clf, data, target)
 
     print data
     print target
 
-    print "Preciting a value"
-
-    temp = [1, 8, 3, 12]
-    temp = [8, 8, 8, 24]
-    temp = [4, 3, 6, 13]
-    temp = [0, 0, 0, 0]
-    # temp = np.array(temp).reshape((len(temp), 3))
-    temp = np.array(temp).reshape(-1, 4)
-    # http://stackoverflow.com/questions/12575421/convert-a-1d-array-to-a-2d-array-in-numpy
-
-    print "too predict"
-    print temp
-
+    temp = [4, 3, 6]
+    temp = np.array(temp).reshape(-1, len(temp))
     print clf.predict(temp)
 
-    joblib.dump(clf, 'model/filename.pkl')
+    export_model(clf)
 
-main(algorithm_name, filename)
+main()
