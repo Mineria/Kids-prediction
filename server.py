@@ -4,6 +4,7 @@ app = Flask(__name__)
 
 from sklearn.externals import joblib
 from normalization import normalize_operands, server_operation_conversion
+import numpy as np
 
 clf = joblib.load('model/filename.pkl')
 
@@ -19,21 +20,10 @@ def predict(op1, operator_number, op2, time):
     operator = server_operation_conversion(operator_number)
     complexity = op1 + op2 + operator
 
-    data_to_predict = [op1, operator, op2, complexity]
+    data_input = [op1, operator, op2, complexity]
+    data_input = np.array(data_input).reshape(-1, len(data_input))
 
-    print data_to_predict
-
-    return str(clf.predict(data_to_predict))
-
-
-  # Aquí va la magia de Machile Learning
-  # return float(regr.predict([v])[0])
+    return str(clf.predict(data_input)[0])
 
 if __name__ == "__main__":
     app.run()
-
-# Desde Rails podéis llamarlo así
-
-# def estimate
-#   self.estimation = HTTP.get("http://localhost:5000/predict/#{op1.to_f}/").to_s
-# end
