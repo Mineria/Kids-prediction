@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 import csv     # imports the csv module
 
-from normalization import normalize_operands, normalize_operator, normalize_time
+from normalization import is_multiplication, normalize_operands, normalize_operator, normalize_time
 
 # Export the model
 from sklearn.externals import joblib
@@ -27,12 +27,14 @@ def prepare_data(dataframe):
     df = dataframe
     deleted_labels = ['name']
 
+    multiplication = df.apply(is_multiplication, axis=1).astype(int)
+    df.insert(0, 'complexity', multiplication) # Insert column into index 3
+
     df['op1'] = df['op1'].map( lambda x: normalize_operands(x) ).astype(int)
     df['op2'] = df['op2'].map( lambda x: normalize_operands(x) ).astype(int)
     df['operator'] = df['operator'].map( lambda x: normalize_operator(x) ).astype(int)
     df['time'] = df['time'].map( lambda x: normalize_time(x) ).astype(int)
 
-    
 
     df = df.drop(deleted_labels, axis=1)
 
@@ -85,6 +87,9 @@ def main(algorithm_name, filename):
     cross_score = prediction_cross_validation(clf, data, target)
     normal_score = prediction_normal(clf, data, target)
 
+
+    print data
+
     print "cross_validation_scores %f" % (cross_score * 100)
     print "normal validation is %f" % (normal_score * 100)
 
@@ -94,17 +99,14 @@ def main(algorithm_name, filename):
 
     print "Preciting a value"
 
-
-    for row in data:
-        temp = row.reshape(-1, 3)
-        result = clf.predict(temp)
-        print "nop" + str(int(result[0]))
-        if int(result[0]) == 1:
-            print temp
-            print "\tHooooooray"
-        #np.array(temp).reshape(-1, 3)
-
-
+    # for row in data:
+    #     temp = row.reshape(-1, 3)
+    #     result = clf.predict(temp)
+    #     print "nop" + str(int(result[0]))
+    #     if int(result[0]) == 1:
+    #         print temp
+    #         print "\tHooooooray"
+    #     #np.array(temp).reshape(-1, 3)
 
     # http://stackoverflow.com/questions/12575421/convert-a-1d-array-to-a-2d-array-in-numpy
 

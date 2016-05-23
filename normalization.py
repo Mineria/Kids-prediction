@@ -1,5 +1,12 @@
 # --*-- coding:utf-8 --*--
 
+def is_multiplication(row):
+    operator = row['operator']
+    if operator == "*":
+        return 1
+    else:
+        return 0
+
 def normalize_operator(operator):
     if operator == "+":
         return 1
@@ -8,7 +15,7 @@ def normalize_operator(operator):
     elif operator == "/":
         return 3
     elif operator == "*":
-        return 1000
+        return 4
     else:
         return 1
 
