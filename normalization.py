@@ -2,12 +2,18 @@
 
 def normalize_operator(operator):
     if operator == "/":
-        return 8 #  even more complexity
+        return 4 #  even more complexity
     elif operator == "*":
-        return 7 #  more complexity
+        return 3 #  more complexity
     elif operator == "-":
         return 2
     elif operator == "+":
+        return 1
+    else:
+        return 0
+
+def normalize_time(time):
+    if time < 20:
         return 1
     else:
         return 0

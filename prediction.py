@@ -5,7 +5,7 @@ from sklearn import cross_validation
 import pandas as pd
 import numpy as np
 
-from normalization import normalize_operands, normalize_operator
+from normalization import normalize_operands, normalize_operator, normalize_time
 
 # Export the model
 from sklearn.externals import joblib
@@ -32,14 +32,6 @@ def prepare_data(dataframe):
         operands.append(row['op2'])
         operands.append(row['operator'])
         return sum(operands)
-
-    def normalize_time(time):
-        if time < 10:
-            return 2
-        if time < 20:
-            return 1
-        else:
-            return 0
 
     df['time'] = df['time'].map( lambda x: normalize_time(x) ).astype(int)
     df['op1'] = df['op1'].map( lambda x: normalize_operands(x) ).astype(int)
@@ -105,10 +97,16 @@ def main(algorithm_name, filename):
     print"*" * 30
     print
 
+
+    print data
+    print target
+
     print "Preciting a value"
 
     temp = [1, 8, 3, 12]
     temp = [8, 8, 8, 24]
+    temp = [4, 3, 6, 13]
+    temp = [0, 0, 0, 0]
     # temp = np.array(temp).reshape((len(temp), 3))
     temp = np.array(temp).reshape(-1, 4)
     # http://stackoverflow.com/questions/12575421/convert-a-1d-array-to-a-2d-array-in-numpy
