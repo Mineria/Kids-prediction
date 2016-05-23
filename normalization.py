@@ -1,32 +1,45 @@
 # --*-- coding:utf-8 --*--
 
 def normalize_operator(operator):
-    if operator == "/":
-        return 4 #  even more complexity
-    elif operator == "*":
-        return 3 #  more complexity
+    if operator == "+":
+        return 0
     elif operator == "-":
-        return 2
-    elif operator == "+":
         return 1
+    elif operator == "/":
+        return 2
+    elif operator == "*":
+        return 3
     else:
         return 0
 
-def normalize_time(time):
-    if time < 20:
-        return 1
+def operator_number_to_string(operator):
+    if operator == 0:
+        return "+"
+    elif operator == 1:
+        return "-"
+    elif operator == 2:
+        return "/"
+    elif operator == 3:
+        return "*"
     else:
-        return 0
+        return "+"
 
 def server_operation_conversion(operator):
     if operator == 3:
         return 8  #Division |  even more complexity
     elif operator == 2:
-        return 7  #Multiplication | more complexity
+        return 3  #Multiplication | more complexity
     elif operator == 1:
         return 2  #Resta
     elif operator == 0:
         return 1  #Sum
+    else:
+        return 0
+
+
+def normalize_time(time):
+    if time < 20:
+        return 1
     else:
         return 0
 

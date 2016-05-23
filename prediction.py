@@ -39,13 +39,13 @@ def load_data(filename, operation):
     df = pd.read_csv(filename, header=0)
     labels_to_delete = ['name']
 
+    if operation == "+":
+        df.apply(only_sums, axis=1).astype(int)
+
     df['op1'] = df['op1'].map(lambda x: normalize_operands(x)).astype(int)
     df['op2'] = df['op2'].map(lambda x: normalize_operands(x)).astype(int)
     df['operator'] = df['operator'].map(lambda x: normalize_operator(x)).astype(int)
     df['time'] = df['time'].map(lambda x: normalize_time(x)).astype(int)
-
-    # df = df.query('operator==1')
-
 
     df = df.drop(labels_to_delete, axis=1)
 
@@ -71,7 +71,7 @@ def predict_model(clf, X):
     return clf.predict(temp)
 
 def main():
-    train_data = load_data(filename, operation="sum")
+    train_data = load_data(filename, operation="+")
     data = train_data[0::, 0:3]
     target = train_data[0::, 3]
 
