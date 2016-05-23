@@ -4,8 +4,9 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn import cross_validation
 import pandas as pd
 import numpy as np
+import csv     # imports the csv module
 
-from normalization import normalize_operands, normalize_operator
+from normalization import normalize_operands, normalize_operator, normalize_time
 
 # Export the model
 from sklearn.externals import joblib
@@ -26,28 +27,12 @@ def prepare_data(dataframe):
     df = dataframe
     deleted_labels = ['name']
 
-    def sum_complexity(row):
-        operands = []
-        operands.append(row['op1'])
-        operands.append(row['op2'])
-        operands.append(row['operator'])
-        return sum(operands)
-
-    def normalize_time(time):
-        if time < 10:
-            return 2
-        if time < 20:
-            return 1
-        else:
-            return 0
-
-    df['time'] = df['time'].map( lambda x: normalize_time(x) ).astype(int)
     df['op1'] = df['op1'].map( lambda x: normalize_operands(x) ).astype(int)
     df['op2'] = df['op2'].map( lambda x: normalize_operands(x) ).astype(int)
     df['operator'] = df['operator'].map( lambda x: normalize_operator(x) ).astype(int)
+    df['time'] = df['time'].map( lambda x: normalize_time(x) ).astype(int)
 
-    complexity = df.apply(sum_complexity, axis=1).astype(int)
-    df.insert(4, 'complexity', complexity) # Insert column into index 3
+    
 
     df = df.drop(deleted_labels, axis=1)
 
@@ -82,7 +67,6 @@ def prediction_normal(clf, data, target):
     X_train, X_test, y_train, y_test = cross_validation.train_test_split(
         data, target, test_size=0.18, random_state=1)
 
-    clf = clf.fit(X_train, y_train)
     score = clf.score(X_test, y_test)
     return score
 
@@ -90,8 +74,11 @@ def main(algorithm_name, filename):
 
     dataframe = read_training(filename)
     train_data = prepare_data(dataframe)
-    data = train_data[0::, 0:4]
-    target = train_data[0::, 4]
+    data = train_data[0::, 0:3]
+    target = train_data[0::, 3]
+
+    print data
+    print target
 
     clf = load_classifier(algorithm_name, data, target)
 
@@ -107,15 +94,68 @@ def main(algorithm_name, filename):
 
     print "Preciting a value"
 
-    temp = [1, 8, 3, 12]
-    temp = [8, 8, 8, 24]
-    # temp = np.array(temp).reshape((len(temp), 3))
-    temp = np.array(temp).reshape(-1, 4)
+
+    for row in data:
+        temp = row.reshape(-1, 3)
+        result = clf.predict(temp)
+        print "nop" + str(int(result[0]))
+        if int(result[0]) == 1:
+            print temp
+            print "\tHooooooray"
+        #np.array(temp).reshape(-1, 3)
+
+
+
     # http://stackoverflow.com/questions/12575421/convert-a-1d-array-to-a-2d-array-in-numpy
 
-    print "too predict"
-    print temp
+    # f = open('data/train.csv', 'rb') # opens the csv file
+    # try:
+    #     reader = csv.reader(f)  # creates the reader object
+    #     for row in reader:   # iterates the rows of the file in orders
+    #         op1 = row[1]
+    #         operator = row[2]
+    #         op2 = row[3]
+    #
+    #         temp = []
+    #         temp.append(op1)
+    #         temp.append(operator)
+    #         temp.append(op2)
+    #
+    #         print row    # prints each row
+    # finally:
+    #     f.close()      # closing
 
+    temp = [200, 1000, 200]
+    temp = np.array(temp).reshape(-1, 3)
+    print temp
+    print clf.predict(temp)
+
+    print "*****"
+
+
+    temp = np.array(temp).reshape(-1, 3)
+    print temp
+    print clf.predict(temp)
+
+    print "*****"
+
+    temp = [0, 1000, 1]
+    temp = np.array(temp).reshape(-1, 3)
+    print temp
+    print clf.predict(temp)
+
+    print "*****"
+
+    temp = [1, 2, 4]
+    temp = np.array(temp).reshape(-1, 3)
+    print temp
+    print clf.predict(temp)
+
+    print "*****"
+
+    temp = [10, 2, 8]
+    temp = np.array(temp).reshape(-1, 3)
+    print temp
     print clf.predict(temp)
 
     joblib.dump(clf, 'model/filename.pkl')
